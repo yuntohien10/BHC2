@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>중지해 | 태풍·항만 정보</title>
+  <style>
+    :root{--navy:#163954;--line:#d8e3ed;--blue:#2485c2}*{box-sizing:border-box}body{margin:0;background:#f7fafc;color:var(--navy);font-family:Arial,"Noto Sans KR",sans-serif}header{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 6vw}.brand{font-size:21px;font-weight:800}.brand small{display:block;margin-top:3px;color:#7690a1;font-size:10px;letter-spacing:.08em}main{max-width:900px;margin:auto;padding:45px 5vw}.back{color:#2476b0;text-decoration:none;font-size:14px}h1{margin:20px 0 7px;font-size:34px}p{color:#6b8396;line-height:1.65}.card{margin-top:24px;padding:28px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 30px #1e527011}.badge{display:inline-block;padding:8px 12px;border-radius:8px;color:#fff;font-weight:bold;font-size:13px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:23px 0}.stat{padding:16px;border-radius:12px;background:#f3f8fb}.stat small{display:block;color:#758fa2;margin-bottom:8px}.stat b{font-size:17px}.guide h2,.control-title{margin:0 0 13px;font-size:19px}.wind-control{display:flex;align-items:center;gap:14px;color:#526f84}.wind-control output{min-width:78px;font-weight:700;color:#163954}.wind-control input{flex:1;accent-color:#2485c2}.chart{width:100%;height:auto;overflow:visible}.chart text{font-size:12px;fill:#6b8396}.chart-axis{stroke:#cadbe6}.chart-line{fill:none;stroke:#2485c2;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.chart-point{fill:#e8465d}.guide h2{margin:0 0 13px}.steps{display:grid;gap:10px;padding:0;margin:0;list-style:none;counter-reset:steps}.steps li{counter-increment:steps;display:flex;gap:12px;padding:15px;border-radius:11px;background:#f6f9fb;color:#456174;line-height:1.5}.steps li:before{content:counter(steps);display:grid;place-items:center;flex:0 0 25px;height:25px;border-radius:50%;background:var(--blue);color:#fff;font-size:12px;font-weight:bold}.note{margin-top:20px;padding:14px;border:1px solid #dfe9ef;border-radius:10px;background:#fbfdfe;color:#587286;font-size:13px;line-height:1.65}@media(max-width:550px){main{padding-top:30px}.grid{grid-template-columns:1fr}.wind-control{align-items:stretch;flex-direction:column}}</style>
+</head>
+<body>
+  <header><div class="brand">중지해<small>CRANE SAFETY CONTROL</small></div></header><aside id="danger-toast" role="alert" aria-live="assertive" style="display:none;position:fixed;right:24px;top:24px;z-index:10;width:min(390px,calc(100vw - 36px));padding:18px 44px 18px 18px;border-radius:14px;background:#fff;color:#55212a;border:1px solid #f1a2a9;box-shadow:0 14px 34px #7d243433;line-height:1.55"><button type="button" aria-label="알림 닫기" onclick="this.parentElement.style.display='none'" style="position:absolute;right:12px;top:9px;border:0;background:transparent;color:#8e6170;font-size:22px;cursor:pointer">×</button><strong style="display:block;color:#c72f41;margin-bottom:5px">🚨 크레인 안전 알림</strong><span id="danger-message"></span></aside>
+  <main><a class="back" href="index.html">← 태풍 현황 지도로 돌아가기</a><h1 id="title">태풍 한울</h1><p id="intro">태풍의 현재 위치와 예상 이동 정보를 확인하세요.</p><section class="card"><span class="badge" id="badge">태풍 정보</span><div class="grid" id="stats"></div><div class="note" id="note"></div></section><section class="card" id="wind-tools"><h2 class="control-title">현재 풍속 조절</h2><label class="wind-control" for="wind-range">현재 풍속 <output id="wind-output">—</output><input id="wind-range" type="range" min="1" max="30" step="0.1" aria-label="현재 풍속 조절"></label><svg class="chart" id="wind-chart" viewBox="0 0 680 210" role="img" aria-label="시간에 따른 현재 풍속 변화 그래프"><line class="chart-axis" x1="52" y1="170" x2="650" y2="170"/><line class="chart-axis" x1="52" y1="25" x2="52" y2="170"/><text x="10" y="32">30</text><text x="17" y="174">0</text><text x="52" y="194">이전</text><text x="325" y="194">현재</text><text x="600" y="194">최근</text><path class="chart-line" id="chart-line" d=""/><circle class="chart-point" id="current-point" r="5"/></svg></section><section class="card guide" id="guide"><h2>안전수칙</h2><ol class="steps" id="steps"></ol></section></main>
+  <script>
+    const ports={
+      incheon:{name:'인천항',currentWind:8.4,impact:'태풍 영향권의 외곽에 있습니다.',riskEta:'약 1시간 20분 후',rules:['기상 변화와 항만 통제 안내를 지속 확인합니다.','컨테이너·장비 결속 상태를 사전 점검합니다.','작업 재개·중지 기준을 현장에 공유합니다.']},
+      pohang:{name:'포항항',currentWind:16.5,impact:'강풍 영향 가능성이 높아지고 있습니다.',riskEta:'약 35분 후',rules:['크레인 작업을 제한하고 비상 대기합니다.','레일 클램프와 타이다운 상태를 점검합니다.','부두 접근과 차량 이동을 최소화합니다.']},
+      ulsan:{name:'울산항',currentWind:24.7,impact:'태풍 중심 경로와 가까운 위험 영향권입니다.',riskEta:'현재 위험 단계',rules:['모든 크레인 작업을 즉시 중지합니다.','작업자를 안전지대로 대피시키고 통제선을 유지합니다.','안전관리자의 최종 승인 전까지 작업을 재개하지 않습니다.']},
+      busan:{name:'부산항',currentWind:25.1,impact:'태풍 예상 영향 경로와 매우 가까운 위치입니다.',riskEta:'현재 위험 단계',rules:['모든 크레인 작업을 즉시 중지합니다.','레일 클램프·타이다운 등 고정 장치를 점검합니다.','안전관리자의 승인 전까지 작업을 재개하지 않습니다.']},
+      mokpo:{name:'목포항',currentWind:15.2,impact:'남서 해상 강풍의 영향을 받고 있습니다.',riskEta:'약 45분 후',rules:['작업량을 축소하고 기상 변화를 관찰합니다.','옥외 적재물과 크레인 고정 장치를 점검합니다.','현장 비상연락 체계를 유지합니다.']},
+      yeosu:{name:'여수항',currentWind:22.9,impact:'태풍 영향 경로 인근에 위치해 있습니다.',riskEta:'현재 위험 단계',rules:['크레인 작업을 즉시 중지합니다.','장비 고정 상태와 낙하물 위험 구역을 확인합니다.','안전관리자 지시에 따라 대피·통제를 시행합니다.']}
+    };
+    const $=id=>document.getElementById(id),regionId=new URLSearchParams(location.search).get('region'),r=ports[regionId];
+    let wasDanger=false;
+    function sendDangerNotification(){
+      $('danger-message').textContent=`[크레인 안전 알림] 현재 ${r.name} 풍속이 위험 수준입니다. 크레인 작업을 즉시 중지하고 안전관리자의 지시에 따라주세요.`;
+      $('danger-toast').style.display='block';
+      if('Notification' in window && Notification.permission==='granted'){
+        new Notification('🚨 강풍 위험 알림',{body:'예상 풍속이 위험 기준을 초과했습니다. 크레인 작업을 중지하세요.'});
+      }
+    }
+    if('Notification' in window && Notification.permission==='default'){
+      Notification.requestPermission().then(permission=>{if(permission==='granted' && wasDanger)sendDangerNotification()});
+    }
+    if(r){
+      $('title').textContent=r.name+' 태풍 영향 정보';$('intro').textContent=r.impact;$('steps').innerHTML=r.rules.map(x=>`<li>${x}</li>`).join('');
+      if(sessionStorage.getItem('jungihae-admin-mode')!=='1')$('wind-tools').style.display='none';
+      let current=Number(localStorage.getItem('jungihae-wind-'+regionId))||r.currentWind,history=[Math.max(1,current-6),Math.max(1,current-4),Math.max(1,current-2),current];
+      const level=wind=>wind>=21?'위험':wind>=11?'주의':'관심';
+      const color=level=>level==='위험'?'#e8465d':level==='주의'?'#e28725':level==='관심'?'#2eaf70':'#2485c2';
+      function draw(values){const pts=values.map((v,i)=>`${52+i*(598/(values.length-1))},${170-v*4.7}`).join(' ');$('chart-line').setAttribute('d','M '+pts.replace(' ',', L '));const end=pts.split(' ').pop().split(',');$('current-point').setAttribute('cx',end[0]);$('current-point').setAttribute('cy',end[1])}
+      function update(){const forecast=Math.min(30,Math.max(1,current+3.2)),risk=level(forecast),riskColor=color(risk),isDanger=risk==='위험';$('badge').textContent=risk+' 단계';$('badge').style.background=riskColor;$('stats').innerHTML=`<div class="stat"><small>현재 풍속 · 시연</small><b>${current.toFixed(1)} m/s</b></div><div class="stat"><small>1시간 뒤 예상 위험도</small><b style="color:${riskColor}">${risk}</b></div><div class="stat"><small>1시간 뒤 예상 풍속</small><b>${forecast.toFixed(1)} m/s</b></div>`;$('wind-output').value=current.toFixed(1)+' m/s';$('wind-range').value=current;draw(history);if(isDanger&&!wasDanger&&sessionStorage.getItem('jungihae-admin-mode')!=='1')sendDangerNotification();wasDanger=isDanger}
+      $('wind-range').addEventListener('input',e=>{current=Number(e.target.value);history=[...history.slice(-5),current];update()});window.addEventListener('storage',e=>{if(e.key==='jungihae-wind-'+regionId){current=Number(e.newValue);history=[...history.slice(-5),current];update()}});update();setInterval(()=>{const jump=3+Math.random(),goesUp=Math.random()<.3;current=Math.min(30,Math.max(1,current+(goesUp?jump:-jump)));history=[...history.slice(-5),current];update()},2000)
+    }else{$('stats').innerHTML='<div class="stat"><small>태풍명</small><b>한울</b></div><div class="stat"><small>중심 최대풍속</small><b>46.2 m/s</b></div><div class="stat"><small>이동 방향</small><b>동북동</b></div>';$('note').textContent='태풍 한울은 한반도 남쪽 해상을 지나 동쪽 해상으로 이동할 것으로 예상됩니다.';$('guide').style.display='none';$('wind-tools').style.display='none'}
+  </script>
+</body>
+</html>
